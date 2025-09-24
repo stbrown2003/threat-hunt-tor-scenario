@@ -1,7 +1,7 @@
 <img width="400" src="https://github.com/user-attachments/assets/44bac428-01bb-4fe9-9d85-96cba7698bee" alt="Tor Logo with the onion and a crosshair on it"/>
 
 # Threat Hunt Report: Unauthorized TOR Usage
-- [Scenario Creation](https://github.com/joshmadakor0/threat-hunting-scenario-tor/blob/main/threat-hunting-scenario-tor-event-creation.md)
+- [Scenario Creation](https://github.com/stbrown2003/threat-hunt-tor-scenario/blob/main/scenario-creation.md)
 
 ## Platforms and Languages Leveraged
 - Windows 10 Virtual Machines (Microsoft Azure)
@@ -25,7 +25,7 @@ Management suspects that some employees may be using TOR browsers to bypass netw
 
 ### 1. Searched the `DeviceFileEvents` Table
 
-Searched for any file that had the string "tor" in it and discovered what looks like the user "939st" a file-created event for tor.exe at C:\Users\939st\Desktop\Tor Browser\Browser\TorBrowser\Tor\tor.exe and the creation of a file called `tor-shopping-list.txt` on the desktop at `2025-09-23 7:53:08 PM`. 
+Searched for any file that had the string "tor" in it and discovered what looks like the user "939st" a file-created event for tor.exe at `C:\Users\939st\Desktop\Tor Browser\Browser\TorBrowser\Tor\tor.exe` and the creation of a file called `tor-shopping-list.txt` on the desktop at `2025-09-23 7:53:08 PM`. 
 
 **Query used to locate events:**
 
@@ -85,30 +85,30 @@ DeviceNetworkEvents
 
 ### 1. Tor Browser Installation
 
-- 11:50:01 PM: On device 939st, tor-browser-windows-x86_64-portable-14.5.7.exe was executed from C:\Users\939st\Downloads\... using a silent install (/S). Process created via cmd.exe, initiated by explorer.exe.
-- 11:50:23 PM: File tor.exe created at C:\Users\939st\Desktop\Tor Browser\Browser\TorBrowser\Tor\tor.exe (Tor core executable).
+- 11:50:01 PM: On device 939st, `tor-browser-windows-x86_64-portable-14.5.7.exe` was executed from C:\Users\939st\Downloads\... using a silent install (/S). Process created via `cmd.exe`, initiated by `explorer.exe`.
+- 11:50:23 PM: File `tor.exe` created at `C:\Users\939st\Desktop\Tor Browser\Browser\TorBrowser\Tor\tor.exe` (Tor core executable).
 
 
 ### 2. Network Connection - TOR Network
 
-- 11:51:39 PM: tor.exe connected successfully to remote IP 185.162.249.126 on port 9001 (Tor relay port).
-- 11:51:41 PM: tor.exe connected to remote IPs 65.21.94.13 and 185.162.249.126 on port 9001.
-- 11:52:39 PM: firefox.exe connected to 127.0.0.1:9150 (Tor SOCKS proxy localhost connection).
+- 11:51:39 PM: tor.exe connected successfully to remote IP `185.162.249.126` on port `9001` (Tor relay port).
+- 11:51:41 PM: tor.exe connected to remote IPs `65.21.94.13` and `185.162.249.126` on port `9001`.
+- 11:52:39 PM: firefox.exe connected to `127.0.0.1:9150` (Tor SOCKS proxy localhost connection).
 
 ### 3. Additional Network Connections - TOR Browser Activity
 
-- 7:45:40 PM: firefox.exe connected again to 127.0.0.1:9150 (Tor browsing session initiated).
+- 7:45:40 PM: firefox.exe connected again to `127.0.0.1:9150` (Tor browsing session initiated).
 
-### 6. File Creation - TOR Shopping List
+### 4. File Creation - TOR Shopping List
 
-- 7:53:08 PM: A Windows shortcut tor-shopping-list.lnk was created in C:\Users\939st\AppData\Roaming\Microsoft\Windows\Recent\, suggesting the user accessed/opened a file or application named “tor-shopping-list” through Tor.
+- 7:53:08 PM: A Windows shortcut `tor-shopping-list.lnk` was created in `C:\Users\939st\AppData\Roaming\Microsoft\Windows\Recent\`, suggesting the user accessed/opened a file or application named `tor-shopping-list` through Tor.
 
 ---
 
 ## Summary
 
 - On the evening of September 22, 2025, the Tor Browser was installed on device 939st. This installation was done in a way that didn’t require user interaction (a “silent” install). Soon after, the program began connecting to the Tor network, which is commonly used to browse the internet anonymously.
-- The browser was successfully set up and started routing traffic through Tor. The following day, September 23, 2025, the browser was used again. During this activity, a shortcut called “tor-shopping-list” was created on the computer, showing that the user opened or interacted with a file or link while using Tor.
+- The browser was successfully set up and started routing traffic through Tor. The following day, September 23, 2025, the browser was used again. During this activity, a shortcut called `tor-shopping-list` was created on the computer, showing that the user opened or interacted with a file or link while using Tor.
 
 ---
 

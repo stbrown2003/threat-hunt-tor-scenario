@@ -3,7 +3,7 @@
 
 ## Steps the "Bad Actor" took Create Logs and IoCs:
 1. Download the TOR browser installer: https://www.torproject.org/download/
-2. Install it silently: ```tor-browser-windows-x86_64-portable-14.0.1.exe /S```
+2. Install it silently: ```tor-browser-windows-x86_64-portable-14.5.7.exe /S```
 3. Opens the TOR browser from the folder on the desktop
 4. Connect to TOR and browse a few sites. For example:
    - **WARNING: The links to onion sites change a lot and these have changed. However if you connect to Tor and browse around normal sites a bit, the necessary logs should still be created:**
@@ -39,50 +39,39 @@
 
 ## Related Queries:
 ```kql
-// Installer name == tor-browser-windows-x86_64-portable-(version).exe
-// Detect the installer being downloaded
+// Events involving the use of the tor browser
+// employee installed tor and created a shopping list
+let target_machine = "939st";
 DeviceFileEvents
-| where FileName startswith "tor"
+| where DeviceName == target_machine and FileName matches regex @"\btor\b" // excludes any files not tor related
+| order by Timestamp desc 
+| project Timestamp, DeviceName, ActionType, FileName, FolderPath
 
-// TOR Browser being silently installed
-// Take note of two spaces before the /S (I don't know why)
+// silent installation of the tor browser via powershell
+let target_machine = "939st";
 DeviceProcessEvents
-| where ProcessCommandLine contains "tor-browser-windows-x86_64-portable-14.0.1.exe  /S"
-| project Timestamp, DeviceName, ActionType, FileName, ProcessCommandLine
+| where DeviceName == target_machine and AccountDomain != "nt authority"
+| where ProcessCommandLine matches regex @"\btor-browser\b"
+| project Timestamp, DeviceName, AccountName, ActionType, FileName, FolderPath, SHA256, ProcessCommandLine
+| order by Timestamp desc 
 
-// TOR Browser or service was successfully installed and is present on the disk
-DeviceFileEvents
-| where FileName has_any ("tor.exe", "firefox.exe")
-| project  Timestamp, DeviceName, RequestAccountName, ActionType, InitiatingProcessCommandLine
-
-// TOR Browser or service was launched
-DeviceProcessEvents
-| where ProcessCommandLine has_any("tor.exe","firefox.exe")
-| project  Timestamp, DeviceName, AccountName, ActionType, ProcessCommandLine
-
-// TOR Browser or service is being used and is actively creating network connections
+// proof of outbound connections over tor ports
+let target_machine = "939st";
 DeviceNetworkEvents
-| where InitiatingProcessFileName in~ ("tor.exe", "firefox.exe")
-| where RemotePort in (9001, 9030, 9040, 9050, 9051, 9150)
-| project Timestamp, DeviceName, InitiatingProcessAccountName, InitiatingProcessFileName, RemoteIP, RemotePort, RemoteUrl
+| where DeviceName == target_machine
+| where ActionType == "ConnectionSuccess" // only filtering successfull connections
+| where RemotePort in (9050, 9150, 9001, 9030, 9040) // commonly used TOR ports
 | order by Timestamp desc
+| project Timestamp, DeviceName, ActionType, RemoteIP, RemotePort, InitiatingProcessFileName
 
-// User shopping list was created and, changed, or deleted
-DeviceFileEvents
-| where FileName contains "shopping-list.txt"
 ```
 
 ---
 
 ## Created By:
-- **Author Name**: Josh Madakor
-- **Author Contact**: https://www.linkedin.com/in/joshmadakor/
-- **Date**: August 31, 2024
-
-## Validated By:
-- **Reviewer Name**: 
-- **Reviewer Contact**: 
-- **Validation Date**: 
+- **Author Name**: Steven Brown
+- **Author Contact**: https://www.linkedin.com/in/stbrown2003/
+- **Date**: September 23rd, 2025
 
 ---
 
